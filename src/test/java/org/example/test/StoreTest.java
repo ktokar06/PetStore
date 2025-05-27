@@ -8,7 +8,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 @Epic("Магазин домашних животных")
 @Feature("Управление заказами")
 class StoreTest {
@@ -24,14 +23,19 @@ class StoreTest {
         testOrder.setStatus("placed");
 
         Response response = StoreApi.createOrder(testOrder);
+        assertEquals(200, response.getStatusCode(), "Не удалось создать заказ");
         orderId = response.jsonPath().getLong("id");
+        assertNotNull(orderId, "ID заказа не получен");
     }
 
     @AfterEach
     @Step("Очистка тестовых данных - удаление заказа")
     void tearDown() {
         if (orderId != null) {
-            StoreApi.deleteOrder(orderId).then().statusCode(200);
+            Response deleteResponse = StoreApi.deleteOrder(orderId);
+            int statusCode = deleteResponse.getStatusCode();
+            assertTrue(statusCode == 200 || statusCode == 404,
+                    "Неожиданный статус код при удалении: " + statusCode);
         }
     }
 
@@ -41,9 +45,11 @@ class StoreTest {
     @Description("Проверка что система корректно создает новый заказ на питомца")
     @Severity(SeverityLevel.BLOCKER)
     void testCreateOrder() {
-        assertNotNull(orderId);
+        assertNotNull(orderId, "ID заказа не должен быть null");
         Response response = StoreApi.getOrder(orderId);
-        assertEquals("placed", response.jsonPath().getString("status"));
+        assertEquals(200, response.getStatusCode(), "Заказ не найден");
+        assertEquals("placed", response.jsonPath().getString("status"),
+                "Статус заказа не соответствует 'placed'");
     }
 
     @Test
@@ -53,8 +59,9 @@ class StoreTest {
     @Severity(SeverityLevel.CRITICAL)
     void testGetOrder() {
         Response response = StoreApi.getOrder(orderId);
-        assertEquals(200, response.getStatusCode());
-        assertEquals(orderId, response.jsonPath().getLong("id"));
+        assertEquals(200, response.getStatusCode(), "Заказ не найден");
+        assertEquals(orderId, response.jsonPath().getLong("id"),
+                "ID полученного заказа не совпадает");
     }
 
     @Test
@@ -64,10 +71,12 @@ class StoreTest {
     @Severity(SeverityLevel.CRITICAL)
     void testDeleteOrder() {
         Response deleteResponse = StoreApi.deleteOrder(orderId);
-        assertEquals(200, deleteResponse.getStatusCode());
+        assertEquals(200, deleteResponse.getStatusCode(),
+                "Не удалось удалить заказ");
 
         Response getResponse = StoreApi.getOrder(orderId);
-        assertEquals(404, getResponse.getStatusCode());
+        assertEquals(404, getResponse.getStatusCode(),
+                "Заказ всё ещё существует");
 
         orderId = null;
     }
@@ -79,7 +88,9 @@ class StoreTest {
     @Severity(SeverityLevel.NORMAL)
     void testGetInventory() {
         Response response = StoreApi.getInventory();
-        assertEquals(200, response.getStatusCode());
-        assertTrue(response.jsonPath().getMap("").size() > 0);
+        assertEquals(200, response.getStatusCode(),
+                "Не удалось получить инвентарь");
+        assertTrue(response.jsonPath().getMap("").size() > 0,
+                "Инвентарь пуст");
     }
 }

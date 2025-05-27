@@ -5,8 +5,9 @@ import org.example.model.Pet;
 
 import static io.restassured.RestAssured.given;
 
+
 /**
- * API клиент для работы с питомцами в Petstore.
+ * API клиент для работы с питомцами в PetStore.
  * Предоставляет методы для создания, получения, обновления и удаления питомцев.
  */
 public class PetApi {
