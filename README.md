@@ -6,7 +6,7 @@
 
 ```
 petstore-api-tests/
-├── src/main/java/org/example/
+├── src/test/java/org/example/
 │   ├── api/          # Классы API клиента
 │   ├── model/        # Классы моделей данных
 │   └── test/         # Тестовые классы
