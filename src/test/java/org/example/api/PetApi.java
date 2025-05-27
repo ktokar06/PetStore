@@ -79,6 +79,7 @@ public class PetApi {
     public static Response deletePet(Long id) {
         return given()
                 .log().all()
+                .header("api_key", "special-key")
                 .delete("/pet/{petId}", id)
                 .then()
                 .log().all()
