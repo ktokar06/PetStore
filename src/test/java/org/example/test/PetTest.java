@@ -28,9 +28,9 @@ class PetTest {
         testPet.setPhotoUrls(new ArrayList<>(Arrays.asList("photo", "photo")));
 
         Response response = PetApi.createPet(testPet);
-        assertEquals(200, response.getStatusCode(), "Pet creation failed");
+        assertEquals(200, response.getStatusCode(), "Не удалось создать питомца.");
         petId = testPet.getId();
-        assertNotNull(petId, "Pet ID should not be null");
+        assertNotNull(petId, "Идентификатор питомца не должен быть нулевым");
     }
 
     @AfterEach
@@ -39,11 +39,11 @@ class PetTest {
             try {
                 Response deleteResponse = PetApi.deletePet(petId);
                 if (deleteResponse.getStatusCode() != 200) {
-                    System.err.println("Failed to delete pet " + petId +
-                            ", status: " + deleteResponse.getStatusCode());
+                    System.out.println("Не удалось удалить питомца " + petId +
+                            ", статус: " + deleteResponse.getStatusCode());
                 }
             } catch (Exception e) {
-                System.err.println("Exception during pet deletion: " + e.getMessage());
+                System.out.println("Исключение при удалении питомца: " + e.getMessage());
             }
         }
     }
