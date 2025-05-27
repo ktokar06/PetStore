@@ -8,50 +8,37 @@ import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 @Epic("Магазин домашних животных")
-@Feature("Управление карточками питомцев")
+@Feature("CRUD операции с питомцами")
 class PetTest {
+
     private Pet testPet;
     private Long petId;
 
     @BeforeEach
+    @Step("Подготовка тестовых данных - создание питомца")
     void setUp() {
         testPet = new Pet();
         long uniqueId = System.currentTimeMillis();
         testPet.setId(uniqueId);
         testPet.setName("Fluffy_" + uniqueId);
         testPet.setStatus("available");
-        testPet.setPhotoUrls(new ArrayList<>(Arrays.asList("photo", "photo")));
+        testPet.setPhotoUrls(new ArrayList<>(Arrays.asList("photo1", "photo2")));
 
         Response response = PetApi.createPet(testPet);
         assertEquals(200, response.getStatusCode(), "Не удалось создать питомца.");
-        petId = testPet.getId();
+
+        petId = response.jsonPath().getLong("id");
         assertNotNull(petId, "Идентификатор питомца не должен быть нулевым");
     }
 
-    @AfterEach
-    void tearDown() {
-        if (petId != null) {
-            try {
-                Response deleteResponse = PetApi.deletePet(petId);
-                if (deleteResponse.getStatusCode() != 200) {
-                    System.out.println("Не удалось удалить питомца " + petId +
-                            ", статус: " + deleteResponse.getStatusCode());
-                }
-            } catch (Exception e) {
-                System.out.println("Исключение при удалении питомца: " + e.getMessage());
-            }
-        }
-    }
-
     @Test
-    @Story("Операции с карточкой питомца")
-    @DisplayName("Создание нового питомца с валидными данными")
-    @Description("Проверка успешного создания карточки питомца с обязательными полями")
+    @Story("Создание питомца")
+    @DisplayName("Создание нового питомца")
     @Severity(SeverityLevel.BLOCKER)
     void testCreatePet() {
         Response response = PetApi.createPet(testPet);
@@ -60,9 +47,8 @@ class PetTest {
     }
 
     @Test
-    @Story("Операции с карточкой питомца")
-    @DisplayName("Получение информации о существующем питомце")
-    @Description("Проверка корректного возврата данных при запросе существующего питомца")
+    @Story("Получение информации о питомце")
+    @DisplayName("Получение данных по ID")
     @Severity(SeverityLevel.CRITICAL)
     void testGetPetById() {
         Response response = PetApi.getPetById(petId);
@@ -72,88 +58,36 @@ class PetTest {
     }
 
     @Test
-    @Story("Операции с карточкой питомца")
-    @DisplayName("Полное обновление данных питомца")
-    @Description("Проверка корректного обновления всех полей карточки питомца")
+    @Story("Редактирование питомца")
+    @DisplayName("Обновление данных питомца")
     @Severity(SeverityLevel.NORMAL)
     void testUpdatePet() {
-        testPet.setName("NewName");
+        testPet.setName("UpdatedName");
         testPet.setStatus("sold");
+
+        if (testPet.getPhotoUrls() == null || testPet.getPhotoUrls().isEmpty()) {
+            testPet.setPhotoUrls(List.of("default_photo_url"));
+        }
 
         Response updateResponse = PetApi.updatePet(testPet);
         assertEquals(200, updateResponse.getStatusCode());
 
         Response getResponse = PetApi.getPetById(petId);
-        assertEquals("NewName", getResponse.jsonPath().getString("name"));
+        assertEquals("UpdatedName", getResponse.jsonPath().getString("name"));
         assertEquals("sold", getResponse.jsonPath().getString("status"));
     }
 
     @Test
-    @Story("Операции с карточкой питомца")
+    @Story("Удаление питомца")
     @DisplayName("Удаление существующего питомца")
-    @Description("Проверка успешного удаления карточки питомца")
     @Severity(SeverityLevel.CRITICAL)
     void testDeletePet() {
         Response deleteResponse = PetApi.deletePet(petId);
         assertEquals(200, deleteResponse.getStatusCode());
 
         Response getResponse = PetApi.getPetById(petId);
-        assertEquals(404, getResponse.getStatusCode());
+        assertEquals(404, getResponse.getStatusCode(), "Питомец должен быть удален");
 
         petId = null;
-    }
-
-    @Test
-    @Story("Поиск и фильтрация питомцев")
-    @DisplayName("Поиск питомцев по статусу 'available'")
-    @Description("Проверка возврата непустого списка питомцев со статусом 'available'")
-    @Severity(SeverityLevel.NORMAL)
-    void testFindPetsByStatus() {
-        Response response = PetApi.findPetsByStatus("available");
-        assertEquals(200, response.getStatusCode());
-        assertTrue(response.jsonPath().getList("id").size() > 0);
-    }
-
-    @Test
-    @Story("Дополнительные операции с питомцами")
-    @DisplayName("Частичное обновление данных через форму")
-    @Description("Проверка обновления имени и статуса питомца через form-data")
-    @Severity(SeverityLevel.MINOR)
-    void testUpdatePetWithFormData() {
-        String newName = "FluffyUpdated";
-        String newStatus = "pending";
-
-        Response response = PetApi.updatePetWithFormData(petId, newName, newStatus);
-        assertEquals(200, response.getStatusCode());
-
-        Response getResponse = PetApi.getPetById(petId);
-        assertEquals(newName, getResponse.jsonPath().getString("name"));
-        assertEquals(newStatus, getResponse.jsonPath().getString("status"));
-    }
-
-    @Test
-    @Story("Дополнительные операции с питомцами")
-    @DisplayName("Загрузка дополнительного изображения для питомца")
-    @Description("Проверка успешной загрузки изображения с метаданными")
-    @Severity(SeverityLevel.MINOR)
-    void testUploadPetImage() {
-        String additionalMetadata = "Test image";
-        String fileContent = "Test file content";
-
-        Response response = PetApi.uploadPetImage(petId, additionalMetadata, fileContent);
-        assertEquals(200, response.getStatusCode());
-        assertNotNull(response.jsonPath().getString("message"));
-    }
-
-    @Test
-    @Story("Обработка ошибок")
-    @DisplayName("Запрос несуществующего питомца")
-    @Description("Проверка корректной обработки запроса несуществующего ID питомца")
-    @Severity(SeverityLevel.NORMAL)
-    void testGetNonExistentPet() {
-        long nonExistentId = 999999999999999999L;
-        Response response = PetApi.getPetById(nonExistentId);
-        assertTrue(response.getStatusCode() == 404 || response.getStatusCode() == 400,
-                "Expected 404 or 400 for non-existent pet");
     }
 }

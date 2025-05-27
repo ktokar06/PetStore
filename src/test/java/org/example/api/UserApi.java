@@ -1,5 +1,6 @@
 package org.example.api;
 
+import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.example.model.User;
 
@@ -7,13 +8,15 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 
-
 /**
  * API клиент для работы с пользователями в Petstore.
  * Предоставляет методы для создания, получения, обновления и удаления пользователей.
  */
 public class UserApi {
-    private static final String BASE_URL = "https://petstore.swagger.io/v2";
+
+    static {
+        RestAssured.baseURI = "https://petstore.swagger.io/v2";
+    }
 
     /**
      * Создает нового пользователя.
@@ -24,7 +27,6 @@ public class UserApi {
     public static Response createUser(User user) {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
                 .contentType("application/json")
                 .body(user)
                 .post("/user")
@@ -32,6 +34,7 @@ public class UserApi {
                 .log().all()
                 .extract().response();
     }
+
 
     /**
      * Получает информацию о пользователе по имени.
@@ -42,7 +45,6 @@ public class UserApi {
     public static Response getUser(String username) {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
                 .get("/user/" + username)
                 .then()
                 .log().all()
@@ -58,7 +60,6 @@ public class UserApi {
     public static Response updateUser(User user) {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
                 .contentType("application/json")
                 .body(user)
                 .put("/user/" + user.getUsername())
@@ -76,7 +77,6 @@ public class UserApi {
     public static Response deleteUser(String username) {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
                 .delete("/user/" + username)
                 .then()
                 .log().all()
@@ -84,46 +84,14 @@ public class UserApi {
     }
 
     /**
-     * Вход пользователя в систему
-     * @param username имя пользователя
-     * @param password пароль
-     * @return Ответ API
-     */
-    public static Response loginUser(String username, String password) {
-        return given()
-                .log().all()
-                .baseUri(BASE_URL)
-                .queryParam("username", username)
-                .queryParam("password", password)
-                .get("/user/login")
-                .then()
-                .log().all()
-                .extract().response();
-    }
-
-    /**
-     * Выход пользователя из системы
-     * @return Ответ API
-     */
-    public static Response logoutUser() {
-        return given()
-                .log().all()
-                .baseUri(BASE_URL)
-                .get("/user/logout")
-                .then()
-                .log().all()
-                .extract().response();
-    }
-
-    /**
-     * Создание списка пользователей
-     * @param users список пользователей
-     * @return Ответ API
+     * Создает несколько пользователей из списка.
+     *
+     * @param users список объектов User для создания
+     * @return Ответ API с результатом операции
      */
     public static Response createUsersWithList(List<User> users) {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
                 .contentType("application/json")
                 .body(users)
                 .post("/user/createWithList")
@@ -133,14 +101,14 @@ public class UserApi {
     }
 
     /**
-     * Создание массива пользователей
-     * @param users массив пользователей
-     * @return Ответ API
+     * Создает несколько пользователей из массива.
+     *
+     * @param users массив объектов User для создания
+     * @return Ответ API с результатом операции
      */
     public static Response createUsersWithArray(User[] users) {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
                 .contentType("application/json")
                 .body(users)
                 .post("/user/createWithArray")

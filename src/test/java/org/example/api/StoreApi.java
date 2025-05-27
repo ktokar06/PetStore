@@ -1,80 +1,84 @@
 package org.example.api;
 
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.example.model.Order;
 
 import static io.restassured.RestAssured.given;
 
-
 /**
- * API клиент для работы с заказами в Petstore.
- * Предоставляет методы для управления заказами и инвентарем.
+ * API-клиент для управления заказами и инвентарём в PetStore.
+ * Поддерживает операции создания, получения, удаления заказов и просмотра инвентаря.
  */
 public class StoreApi {
-    private static final String BASE_URL = "https://petstore.swagger.io/v2";
+
+    static {
+        RestAssured.baseURI = "https://petstore.swagger.io/v2";
+    }
 
     /**
-     * Создает новый заказ на питомца.
+     * Создаёт новый заказ на питомца.
      *
-     * @param order объект заказа для создания
-     * @return Ответ API с деталями созданного заказа или сообщением об ошибке
+     * @param order объект заказа
+     * @return ответ API с деталями созданного заказа
      */
     public static Response createOrder(Order order) {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
-                .contentType("application/json")
+                .contentType(ContentType.JSON)
                 .body(order)
                 .post("/store/order")
                 .then()
                 .log().all()
-                .extract().response();
+                .extract()
+                .response();
     }
 
     /**
-     * Получает информацию о заказе по его ID.
+     * Получает заказ по идентификатору.
      *
-     * @param id идентификатор заказа
-     * @return Ответ API с деталями заказа или сообщением об ошибке
+     * @param id ID заказа
+     * @return ответ API с данными заказа или ошибкой
      */
     public static Response getOrder(Long id) {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
-                .get("/store/order/" + id)
+                .get("/store/order/{orderId}", id)
                 .then()
                 .log().all()
-                .extract().response();
+                .extract()
+                .response();
     }
 
     /**
-     * Удаляет заказ по его ID.
+     * Удаляет заказ по идентификатору.
      *
-     * @param id идентификатор заказа для удаления
-     * @return Ответ API с результатом операции
+     * @param id ID заказа
+     * @return ответ API с результатом удаления
      */
     public static Response deleteOrder(Long id) {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
-                .delete("/store/order/" + id)
+                .delete("/store/order/{orderId}", id)
                 .then()
                 .log().all()
-                .extract().response();
+                .extract()
+                .response();
     }
 
     /**
-     * Получает текущий инвентарь магазина.
+     * Получает текущее состояние инвентаря.
      *
-     * @return Ответ API с данными инвентаря
+     * @return ответ API с картой {статус: количество}
      */
     public static Response getInventory() {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
                 .get("/store/inventory")
                 .then()
                 .log().all()
-                .extract().response();
+                .extract()
+                .response();
     }
 }

@@ -1,142 +1,88 @@
 package org.example.api;
 
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.example.model.Pet;
 
 import static io.restassured.RestAssured.given;
 
-
 /**
- * API клиент для работы с питомцами в PetStore.
- * Предоставляет методы для создания, получения, обновления и удаления питомцев.
+ * API-клиент для управления питомцами в PetStore.
+ * Поддерживаются операции создания, получения, обновления, удаления,
+ * частичного обновления и загрузки изображений.
  */
 public class PetApi {
-    private static final String BASE_URL = "https://petstore.swagger.io/v2";
+
+    static {
+        RestAssured.baseURI = "https://petstore.swagger.io/v2";
+    }
 
     /**
-     * Создает нового питомца в магазине.
+     * Создаёт нового питомца.
      *
-     * @param pet объект питомца для создания
+     * @param pet объект Pet, содержащий данные нового питомца
      * @return ответ API с деталями созданного питомца
      */
     public static Response createPet(Pet pet) {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
-                .contentType("application/json")
+                .contentType(ContentType.JSON)
                 .body(pet)
                 .post("/pet")
                 .then()
                 .log().all()
-                .extract().response();
+                .extract()
+                .response();
     }
 
     /**
-     * Получает информацию о питомце по его ID.
+     * Получает информацию о питомце по ID.
      *
      * @param id идентификатор питомца
-     * @return ответ API с деталями питомца
+     * @return ответ API с данными питомца
      */
     public static Response getPetById(Long id) {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
-                .get("/pet/" + id)
+                .get("/pet/{petId}", id)
                 .then()
                 .log().all()
-                .extract().response();
+                .extract()
+                .response();
     }
 
     /**
-     * Обновляет информацию о существующем питомце.
+     * Обновляет данные существующего питомца.
      *
-     * @param pet объект питомца с обновленными данными
-     * @return ответ API с обновленными деталями питомца
+     * @param pet объект Pet с обновлённой информацией
+     * @return ответ API с результатом обновления
      */
     public static Response updatePet(Pet pet) {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
-                .contentType("application/json")
+                .contentType(ContentType.JSON)
                 .body(pet)
                 .put("/pet")
                 .then()
                 .log().all()
-                .extract().response();
+                .extract()
+                .response();
     }
 
     /**
-     * Удаляет питомца из магазина.
+     * Удаляет питомца по ID.
      *
-     * @param id идентификатор питомца для удаления
-     * @return ответ API с результатом операции
+     * @param id идентификатор питомца
+     * @return ответ API с результатом удаления
      */
     public static Response deletePet(Long id) {
         return given()
                 .log().all()
-                .baseUri(BASE_URL)
-                .delete("/pet/" + id)
+                .delete("/pet/{petId}", id)
                 .then()
                 .log().all()
-                .extract().response();
-    }
-
-    /**
-     * Находит питомцев по статусу.
-     *
-     * @param status статус для поиска (available, pending, sold)
-     * @return ответ API со списком питомцев
-     */
-    public static Response findPetsByStatus(String status) {
-        return given()
-                .log().all()
-                .baseUri(BASE_URL)
-                .queryParam("status", status)
-                .get("/pet/findByStatus")
-                .then()
-                .log().all()
-                .extract().response();
-    }
-
-    /**
-     * Обновляет данные питомца через форму.
-     *
-     * @param petId ID питомца для обновления
-     * @param name новое имя питомца
-     * @param status новый статус питомца
-     * @return ответ API с результатом операции
-     */
-    public static Response updatePetWithFormData(Long petId, String name, String status) {
-        return given()
-                .log().all()
-                .baseUri(BASE_URL)
-                .contentType("application/x-www-form-urlencoded")
-                .formParam("name", name)
-                .formParam("status", status)
-                .post("/pet/" + petId)
-                .then()
-                .log().all()
-                .extract().response();
-    }
-
-    /**
-     * Загружает изображение для питомца.
-     *
-     * @param petId ID питомца
-     * @param additionalMetadata дополнительные метаданные
-     * @param fileContent содержимое файла для загрузки
-     * @return ответ API с результатом загрузки
-     */
-    public static Response uploadPetImage(Long petId, String additionalMetadata, String fileContent) {
-        return given()
-                .log().all()
-                .baseUri(BASE_URL)
-                .contentType("multipart/form-data")
-                .multiPart("additionalMetadata", additionalMetadata)
-                .multiPart("file", "file.txt", fileContent.getBytes())
-                .post("/pet/" + petId + "/uploadImage")
-                .then()
-                .log().all()
-                .extract().response();
+                .extract()
+                .response();
     }
 }

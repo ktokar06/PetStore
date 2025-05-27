@@ -27,7 +27,6 @@
       <version>5.8.2</version>
     </dependency>
 
-
     <!-- Allure TestNG Adapter -->
     <dependency>
       <groupId>io.qameta.allure</groupId>

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Epic("Магазин домашних животных")
-@Feature("Управление заказами")
+@Feature("CRUD операции с заказами")
 class StoreTest {
     private Order testOrder;
     private Long orderId;
@@ -28,21 +28,9 @@ class StoreTest {
         assertNotNull(orderId, "ID заказа не получен");
     }
 
-    @AfterEach
-    @Step("Очистка тестовых данных - удаление заказа")
-    void tearDown() {
-        if (orderId != null) {
-            Response deleteResponse = StoreApi.deleteOrder(orderId);
-            int statusCode = deleteResponse.getStatusCode();
-            assertTrue(statusCode == 200 || statusCode == 404,
-                    "Неожиданный статус код при удалении: " + statusCode);
-        }
-    }
-
     @Test
-    @Story("Создание нового заказа")
-    @DisplayName("Успешное оформление заказа")
-    @Description("Проверка что система корректно создает новый заказ на питомца")
+    @Story("Создание заказа")
+    @DisplayName("Создание нового заказа")
     @Severity(SeverityLevel.BLOCKER)
     void testCreateOrder() {
         assertNotNull(orderId, "ID заказа не должен быть null");
@@ -53,9 +41,8 @@ class StoreTest {
     }
 
     @Test
-    @Story("Просмотр информации о заказе")
-    @DisplayName("Получение данных существующего заказа")
-    @Description("Проверка корректности отображения информации о заказе")
+    @Story("Получение заказа")
+    @DisplayName("Получение данных по ID заказа")
     @Severity(SeverityLevel.CRITICAL)
     void testGetOrder() {
         Response response = StoreApi.getOrder(orderId);
@@ -65,9 +52,8 @@ class StoreTest {
     }
 
     @Test
-    @Story("Удаление заказа из системы")
-    @DisplayName("Отмена заказа")
-    @Description("Проверка что система корректно удаляет заказ")
+    @Story("Удаление заказа")
+    @DisplayName("Удаление существующего заказа")
     @Severity(SeverityLevel.CRITICAL)
     void testDeleteOrder() {
         Response deleteResponse = StoreApi.deleteOrder(orderId);
@@ -82,9 +68,8 @@ class StoreTest {
     }
 
     @Test
-    @Story("Проверка инвентаря")
-    @DisplayName("Получение данных о доступности питомцев")
-    @Description("Проверка корректности отображения информации о количестве доступных питомцев")
+    @Story("Получение инвентаря")
+    @DisplayName("Просмотр текущего инвентаря питомцев")
     @Severity(SeverityLevel.NORMAL)
     void testGetInventory() {
         Response response = StoreApi.getInventory();
