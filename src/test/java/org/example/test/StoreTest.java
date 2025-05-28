@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Epic("Магазин домашних животных")
 @Feature("CRUD операции с заказами")
 class StoreTest {
+
     private Order testOrder;
     private Long orderId;
 

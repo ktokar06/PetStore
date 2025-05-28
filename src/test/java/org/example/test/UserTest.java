@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Epic("Магазин домашних животных")
 @Feature("CRUD операции с пользователями")
 class UserTest {
+
     private static final String USERNAME = "testuser";
     private static final String USERNAME2 = "testuser2";
     private static final String USERNAME3 = "testuser3";
