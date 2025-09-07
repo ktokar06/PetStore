@@ -77,7 +77,7 @@ petstore-api-tests/
 
 1. Клонируйте репозиторий:
    ```bash
-   git clone [https://github.com/your-username/petstore-api-tests.git](https://github.com/your-username/petstore-api-tests.git)
+   git clone https://github.com/ktokar06/PetStore.git
    ```
 
 2. Запустите тесты с помощью Maven:
